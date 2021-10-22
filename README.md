@@ -1,9 +1,9 @@
 # DAFTAR PERUBAHAN
 <ol>
-  <li>Penambahan Fitur Tambah Massal Data DPT</li>
-  <li>Penambahan Fitur Hapus Semua Data Kelas</li>
-  <li>Penambahan Fitur Hapus Semua Data DPT</li>
-  <li>Penambahan Fitur Konfirmasi Sebelum Melakukan Penghapusan Data</li>
+  <li>Penambahan Fitur <b>Tambah Massal Data DPT</b></li>
+  <li>Penambahan Fitur <b>Hapus Semua Data Kelas</b></li>
+  <li>Penambahan Fitur <b>Hapus Semua Data DPT</b></li>
+  <li>Penambahan Fitur <b>Konfirmasi Sebelum Melakukan Penghapusan Data</b></li>
 </ol>
 
 # E-pilketos
