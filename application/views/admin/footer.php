@@ -32,7 +32,7 @@
 
     <footer class="row">
         <p class="col-md-4 col-sm-6 col-xs-6 copyright">&copy; <?php echo date('Y') ?><a href="https://www.gadink47.com" target="_blank"> Muhammad Rompegading</a></p>
-		<p class="col-md-4 col-sm-6 col-xs-6 copyright text-center"><b><a href="https://github.com/fpls-software/pilketos" target="_blank">Pilketos v.0.1.0-Beta</a></b></p>
+		<p class="col-md-4 col-sm-6 col-xs-6 copyright text-center"><b><a href="https://github.com/fpls-software/pilketos" target="_blank">Pilketos v.1.0.0</a></b></p>
         <p class="col-md-4 col-sm-6 col-xs-6 powered-by">Powered by: 
 		<a href="#"><?php echo $load['nm_sekolah']; ?></a></p>
     </footer>

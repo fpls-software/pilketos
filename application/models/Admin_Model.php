@@ -151,6 +151,10 @@ Class Admin_Model extends CI_Model {
 		$hapus	= $this->db->query("DELETE FROM tb_siswa WHERE username='$username'");
 		return $hapus;
 	}
+	public function hapussemuadpt() {
+		$hapus	= $this->db->query("DELETE FROM tb_siswa");
+		return $hapus;
+	}
 	public function updatedpt($username, $nm_siswa, $jk,$kd_kelas) {
 		$update = $this->db->query("UPDATE tb_siswa SET nm_siswa='$nm_siswa', jk='$jk', kd_kelas='$kd_kelas' WHERE username='$username'");
 		return $update;

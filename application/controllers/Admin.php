@@ -368,6 +368,26 @@ Class Admin extends CI_Controller {
 			redirect('admin/datadpt/');
 		}
 	}
+	public function hapussemuadpt() {
+		$hapus = $this->Admin_Model->hapussemuadpt();
+		if($hapus = true) {
+			echo "
+				<script>
+					alert('Semua Data Kelas Telah Dihapus');
+					location.href = '".base_url('index.php/admin/datadpt')."';
+				</script>
+			";
+		}
+		else 
+		{
+			echo "
+				<script>
+					Alert('Tidak Dapat Menghapus Semua Data');
+					location.href = '".base_url('index.php/admin/datadpt')."';
+				</script>
+			";
+		}
+	}
 	public function editdpt($username) {
 		$data['datakddpt']	= $this->Admin_Model->datakddpt($username);
 		$data['datakelas']	= $this->Admin_Model->datakelas();

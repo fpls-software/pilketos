@@ -11,7 +11,7 @@
 					<h2>Data Pemilih Tetap (DPT)</h2>
 				</div>
 				<div class="col-md-6 text-right">
-					<a href="" onclick="return confirm('Apakah anda yakin ingin menghapus semua data DPT?');"> <button type="button" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> Hapus Semua Data</button> </a>
+					<a href="<?php echo base_url(); ?>index.php/admin/hapussemuadpt" onclick="return confirm('Apakah anda yakin ingin menghapus semua data DPT?');"> <button type="button" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> Hapus Semua Data</button> </a>
 				</div>
         </div>
         <div class="box-content">
