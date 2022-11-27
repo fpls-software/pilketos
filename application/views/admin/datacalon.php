@@ -4,12 +4,34 @@
 <?php if($this->session->flashdata('failed')) { ?>
 	<script>alert("Gagal Menghapus Data");</script>
 <?php } ?>
-<div class="box">
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Kandidat Ketua Osis</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Data Kandidat</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+<div class="card">
 	<div class="box-inner">
-		<div class="box-header well">
-			<h2>Data Calon Ketua OSIS</h2>
+		<div class="card-header">
+			<h2 class="card-title">Data Calon Ketua OSIS</h2>
 		</div>
-		<div class="box-content">
+		<div class="card-body">
 			<table class="table table-striped table-bordered bootstrap-datatable datatable responsive">
 				<thead>
 					<tr>

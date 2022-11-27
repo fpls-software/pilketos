@@ -1,18 +1,40 @@
 <?php foreach($jmlpemilih as $pemilih)?>
 <?php foreach($jmlvote as $vote); ?>
-<div class="box">
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Daftar Hadir</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Daftar Hadir</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+<div class="card">
     <div class="box-inner">
-        <div class="box-header well">
+        <div class="card-header">
             <div class="row">
                 <div class="col-lg-6">
-                    <h2>Daftar Hadir Pemilihan Ketua OSIS</h2> 
+                    <h2 class="card-title">Daftar Hadir Pemilihan Ketua OSIS</h2> 
                 </div>
                 <div class="col-lg-6 text-right">
                     <a href="<?php echo base_url('index.php/admin/cetakdaftarhadir'); ?>"> <button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-save"></span> Download Daftar Hadir</button> </a>
                 </div>
             </div>
         </div>
-        <div class="box-content">
+        <div class="card-body">
             <table border="0">
                 <tr>
                     <td>Jumlah DPT</td>

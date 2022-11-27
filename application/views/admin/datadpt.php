@@ -4,17 +4,39 @@
 <?php if($this->session->flashdata('failed')) { ?>
 	<script>alert("Gagal Menghapus Data");</script>
 <?php } ?>
-<div class="box">
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Data DPT</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Data DPT</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+<div class="card">
     <div class="box-inner">
-        <div class="box-header well" style="padding-bottom: 5px; !important">
+        <div class="card-header row" style="padding-bottom: 5px; !important">
         <div class="col-md-6">
-					<h2>Data Pemilih Tetap (DPT)</h2>
+					<h2 class="card-title">Data Pemilih Tetap (DPT)</h2>
 				</div>
 				<div class="col-md-6 text-right">
 					<a href="<?php echo base_url(); ?>index.php/admin/hapussemuadpt" onclick="return confirm('Apakah anda yakin ingin menghapus semua data DPT?');"> <button type="button" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> Hapus Semua Data</button> </a>
 				</div>
         </div>
-        <div class="box-content">
+        <div class="card-body">
             <table class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                 <thead>
                     <th class="text-center">No</th>

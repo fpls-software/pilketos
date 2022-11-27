@@ -1,78 +1,183 @@
-<body>
+<body class="hold-transition sidebar-mini">
 <?php if (!isset($no_visible_elements) || !$no_visible_elements) { ?>
-    <!-- topbar starts -->
-    <div class="navbar navbar-default" role="navigation">
+    <div class="wrapper">
 
-        <div class="navbar-inner">
-            <button type="button" class="navbar-toggle pull-left animated flip">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="<?php echo base_url('index.php/admin/'); ?>">
-                <span>E-Pilketos</span>
-			</a>
+<!-- Navbar -->
+<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+  <!-- Left navbar links -->
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+    </li>
+    <li class="nav-item d-none d-sm-inline-block">
+      <a href="index3.html" class="nav-link">Visit Site</a>
+    </li>
+  </ul>
 
-            <!-- user dropdown starts -->
-            <div class="btn-group pull-right">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <i class="glyphicon glyphicon-user"></i><span class="hidden-sm hidden-xs"> admin</span>
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="<?php echo base_url("index.php/admin/gantipassword"); ?>">Ganti Password</a></li>
-                    <li class="divider"></li>
-                    <li><a href="<?php echo base_url("index.php/admin/logout"); ?>">Logout</a></li>
-                </ul>
-            </div>
-            <!-- user dropdown ends -->
+  <!-- Right navbar links -->
+  <ul class="navbar-nav ml-auto">
+    <!-- Notifications Dropdown Menu -->
+    <li class="nav-item dropdown">
+      <a class="nav-link" data-toggle="dropdown" href="#">
+        <i class="far fa-user"></i>
+        Admin
+      </a>
+      <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        
+        <div class="dropdown-divider"></div>
+        <a href="<?php echo base_url(); ?>index.php/admin/gantipassword" class="dropdown-item">
+          <i class="fas fa-cog"></i> Ganti Password
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="<?php echo base_url(); ?>index.php/admin/logout" class="dropdown-item">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        <div class="dropdown-divider"></div>
 
-
-            <ul class="collapse navbar-collapse nav navbar-nav top-menu">
-                <li><a href="<?php echo base_url('index.php'); ?>"><i class="glyphicon glyphicon-globe"></i> Visit Site</a></li>
-            </ul>
-
-        </div>
-    </div>
-    <!-- topbar ends -->
+      </div>
+    </li>
+  </ul>
+</nav>
+<!-- /.navbar -->
 <?php } ?>
-<div class="ch-container">
-    <div class="row">
-        <?php if (!isset($no_visible_elements) || !$no_visible_elements) { ?>
+<?php if (!isset($no_visible_elements) || !$no_visible_elements) { ?>
+    <aside class="main-sidebar sidebar-light-primary elevation-4">
+        <!-- Brand Logo -->
+        <a href="index3.html" class="brand-link">
+            <img src="<?php echo base_url(); ?>asset/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <span class="brand-text font-weight-light">AdminLTE 3</span>
+        </a>
 
-        <!-- left menu starts -->
-        <div class="col-sm-2 col-lg-2">
-            <div class="sidebar-nav">
-                <div class="nav-canvas">
-                    <div class="nav-sm nav nav-stacked">
-
-                    </div>
-                    <ul class="nav nav-pills nav-stacked main-menu">
-                        <li class="nav-header">MAIN</li>
-                        <li><a class="ajax-link" href="<?php echo base_url('index.php/admin'); ?>"><i class="glyphicon glyphicon-home"></i><span> Dashboard</span></a>
-                        </li>
-						<li class="nav-header">DATA SEKOLAH</li>
-						<li><a class="ajax-link" href="<?php echo base_url('index.php/admin/idsekolah'); ?>"><i class="glyphicon glyphicon-list-alt"></i><span> Identitas Sekolah</span></a></li>
-						<li><a class="ajax-link" href="<?php echo base_url('index.php/admin/datakelas'); ?>"><i class="glyphicon glyphicon-list-alt"></i><span> Data Kelas</span></a></li>
-						<li class="nav-header hidden-md">DATA KANDIDAT KETUA OSIS</li>
-                        <li><a class="ajax-link" href="<?php echo base_url('index.php/admin/tambahcalon'); ?>"><i class="glyphicon glyphicon-list-alt"></i><span> Tambah Kandidat</span></a></li>
-						<li><a class="ajax-link" href="<?php echo base_url("index.php/admin/datacalon"); ?>"><i class="glyphicon glyphicon-eye-open"></i><span> Lihat Data Kandidat</span></a></li>
-						<li class="nav-header hidden-md">DATA DPT</li>
-						<li><a class="ajax-link" href="<?php echo base_url('index.php/admin/tambahdpt'); ?>"><i class="glyphicon glyphicon-list-alt"></i><span> Tambah DPT</span></a></li>
-						<li><a class="ajax-link" href="<?php echo base_url("index.php/admin/datadpt"); ?>"><i class="glyphicon glyphicon-eye-open"></i><span> Lihat Data DPT</span></a></li>
-                        <li class="nav-header hidden-md">HASIL PEMILIHAN</li>
-                        <li><a class="ajax-link" href="<?php echo base_url("index.php/admin/hasilvote") ?>"><i class="glyphicon glyphicon-calendar"></i><span> Lihat Hasil</span></a></li>
-						<li class="nav-header hidden-md">LAPORAN</li>
-						<li><a class="ajax-link" href="<?php echo base_url("index.php/admin/daftarhadir") ?>"><i class="glyphicon glyphicon-calendar"></i><span> Daftar Hadir</span></a></li>
-						<li><a class="ajax-link" href="<?php echo base_url("index.php/admin/laporan") ?>"><i class="glyphicon glyphicon-calendar"></i><span> Laporan Pilketos</span></a></li>
-					</ul>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar user panel (optional) -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="<?php echo base_url(); ?>asset/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                 </div>
-            </div>
-        </div>
-        <!--/span-->
-        <!-- left menu ends -->
+                <div class="info">
+                    <a href="#" class="d-block">Alexander Pierce</a>
+                    </div>
+                </div>
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <!-- Add icons to the links using the .nav-icon class
+                        with font-awesome or any other icon font library -->
 
+                        <li class="nav-item">
+                            <a href="<?php echo base_url('index.php/admin'); ?>" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-school"></i>
+                                <p>
+                                    Data Sekolah
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url('index.php/admin/idsekolah'); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Identitas Sekolah</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url('index.php/admin/datakelas'); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Data Kelas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                                <p>
+                                    Kandidat Ketua Osis
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url('index.php/admin/tambahcalon'); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tambah Kandidat</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url("index.php/admin/datacalon"); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Data Kandidat</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                                <p>
+                                    Data DPT
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url('index.php/admin/tambahdpt'); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tambah DPT</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url("index.php/admin/datadpt"); ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Data DPT</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?php echo base_url("index.php/admin/hasilvote") ?>" class="nav-link">
+                            <i class="nav-icon fas fa-eye"></i>
+                            <p>
+                                Hasil Pemilihan
+                            </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-file"></i>
+                                <p>
+                                    Laporan
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url("index.php/admin/daftarhadir") ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Daftar Hadir</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?php echo base_url("index.php/admin/laporan") ?>" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Pilketos</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+       
         <noscript>
             <div class="alert alert-block col-md-12">
                 <h4 class="alert-heading">Warning!</h4>
@@ -81,7 +186,4 @@
                     enabled to use this site.</p>
             </div>
         </noscript>
-
-        <div id="content" class="col-lg-10 col-sm-10">
-            <!-- content starts -->
-            <?php } ?>
+<?php } ?>
