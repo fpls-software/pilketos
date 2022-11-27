@@ -1,9 +1,7 @@
 # DAFTAR PERUBAHAN
 <ol>
-  <li>Penambahan Fitur <b>Tambah Massal Data DPT</b></li>
-  <li>Penambahan Fitur <b>Hapus Semua Data Kelas</b></li>
-  <li>Penambahan Fitur <b>Hapus Semua Data DPT</b></li>
-  <li>Penambahan Fitur <b>Konfirmasi Sebelum Melakukan Penghapusan Data</b></li>
+  <li>Perubahan Template dari Charisma ke AdminLTE</b></li>
+
 </ol>
 
 # TENTANG E-PILKETOS
