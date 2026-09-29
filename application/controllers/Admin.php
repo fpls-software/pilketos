@@ -7,34 +7,67 @@ Class Admin extends CI_Controller {
 		$this->load->helper(array('form','url'));
 		$this->load->library(array('session', 'pdflibrary', 'Excelreaders'));
 		$this->load->model(array('Admin_Model'));
-	}
-	public function login() {
-		if($this->session->userdata('username'))
-		{
-			redirect('admin/index');
+		$method = $this->uri->segment(2) ? $this->uri->segment(2) : 'index';
+		if ($method === 'create_admin' && $this->input->is_cli_request()) {
+			return;
 		}
-		$this->load->view('admin/head');
-		$this->load->view('admin/login');
-	}
-	public function gantipassword() {
-		if(! $this->session->userdata('username'))
-		{
+		if ($method === 'create_admin') {
+			show_error('This command can only be run from the command line.', 403);
+		}
+		if (!in_array($method, array('login', 'loginvalidation'), TRUE)
+			&& $this->session->userdata('role') !== 'admin') {
 			redirect('admin/login');
 		}
-		$data['idsekolah']	= $this->Admin_Model->idsekolah();
-		$data['dataadmin']	= $this->Admin_Model->dataadmin();
+		if ($this->session->userdata('role') === 'admin'
+			&& $this->Admin_Model->must_change_admin_password($this->session->userdata('username'))
+			&& !in_array($method, array('gantipassword', 'updatepassword', 'logout'), TRUE)) {
+			redirect('admin/gantipassword');
+		}
+		$read_only = array(
+			'login', 'logout', 'regvalid', 'regsekolah', 'index', 'gantipassword', 'idsekolah',
+			'datakelas', 'tambahcalon', 'tambahdpt', 'datadpt', 'editdpt',
+			'editcalon', 'datacalon', 'hasilvote', 'daftarhadir', 'tgl_indo',
+			'cetakdaftarhadir', 'laporan', 'election'
+		);
+		if (!in_array($method, $read_only, TRUE)
+			&& strtoupper($this->input->method(TRUE)) !== 'POST') {
+			show_error('This action requires a POST request.', 405);
+		}
+	}
+	public function login() {
+		if($this->session->userdata('role') === 'admin')
+		{
+			redirect('admin/election');
+		}
+		if ($this->Election_Model->candidate_number_exists((int) $number, $editing ? $nisn : NULL)) {
+			$this->session->set_flashdata('error', 'Nomor urut tersebut sudah digunakan kandidat lain.');
+			redirect('admin/election');
+		}
+		$data['admin_count'] = $this->Admin_Model->admin_count();
+		$this->load->view('admin/login', $data);
+	}
+	public function gantipassword() {
+		$data['dataadmin'] = array(array('username' => $this->session->userdata('username')));
 		$this->load->view('admin/head');
 		$this->load->view('admin/admin-navbar');
 		$this->load->view('admin/gantipassword', $data);
 		$this->load->view('admin/footer', $data);
 	}
 	public function updatepassword() {
-		$username		= $this->input->post('username');
-		$password		= $this->input->post('password');
-		$password_hash	= md5($password);
-		$update			= $this->Admin_Model->gantipassword($username, $password_hash);
-		if($update = true) {
-			$updateuser	= $this->Admin_Model->updateuser($username);
+		$username		= $this->session->userdata('username');
+		$current_password = (string) $this->input->post('current_password');
+		$password		= (string) $this->input->post('password');
+		if (!$this->Admin_Model->authenticate($username, $current_password)) {
+			$this->session->set_flashdata('updatefailed', 'Password saat ini tidak sesuai.');
+			redirect('admin/gantipassword');
+		}
+		if (strlen($password) < 12) {
+			$this->session->set_flashdata('updatefailed', 'Password baru minimal 12 karakter.');
+			redirect('admin/gantipassword');
+		}
+		$password_hash	= password_hash($password, PASSWORD_DEFAULT);
+		$update			= $this->Admin_Model->change_admin_password($username, $password_hash);
+		if($update) {
 			$this->session->set_flashdata('update', 'Berhasil Memperbarui Password');
 			redirect('admin/gantipassword');
 		}
@@ -44,17 +77,21 @@ Class Admin extends CI_Controller {
 		}
 	}
 	public function logout() {
-		$this->session->unset_userdata('username');
+		$this->session->sess_destroy();
 		redirect('admin/login');
 	}
 	public function loginvalidation() {
+		if (strtoupper($this->input->method(TRUE)) !== 'POST') {
+			show_error('This action requires a POST request.', 405);
+		}
 		$username				= $this->input->post('username', TRUE);
-		$password				= $this->input->post('password', TRUE);
-		$password_hash			= md5($password);
-		$result					= $this->Admin_Model->login($username, $password_hash);
+		$password				= (string) $this->input->post('password');
+		$result					= $this->Admin_Model->authenticate($username, $password);
 		if($result == true) {
+			$this->session->sess_regenerate(TRUE);
 			$this->session->set_userdata(array(
-				'username'	=> $username
+				'username'	=> $username,
+				'role'		=> 'admin'
 			));
 			redirect('admin/regvalid');
 		}
@@ -65,17 +102,12 @@ Class Admin extends CI_Controller {
 		}
 	}
 	public function regvalid(){
-		if(! $this->session->userdata('username'))
-		{
-			redirect('admin/login');
-		}
-		$data = $this->Admin_Model->regvalid();
-		foreach($data as $valid) {}
-		if($valid['npsn'] == "") {
+		$data = $this->Admin_Model->idsekolah();
+		if (!$data || empty($data[0]['npsn'])) {
 			redirect('admin/regsekolah');
 		}
 		else {
-			redirect('admin/index');
+			redirect('admin/election');
 		}
 	}
 	public function regsekolah() {
@@ -99,23 +131,7 @@ Class Admin extends CI_Controller {
 		}
 	}
 	public function index() {
-		
-		if(! $this->session->userdata('username'))
-		{
-			redirect('admin/login');
-		}
-		$data['valid'] = $this->Admin_Model->regvalid();
-		if(! $data['valid'] == true) {
-			redirect('admin/regsekolah');
-		}
-		$data['jmlcalon']	= $this->Admin_Model->countcalon();
-		$data['jmlpemilih']	= $this->Admin_Model->countpemilih();
-		$data['idsekolah']	= $this->Admin_Model->idsekolah();
-		$data['datapilketos'] = $this->Admin_Model->datapilketos();
-		$this->load->view('admin/head');
-		$this->load->view('admin/admin-navbar');
-		$this->load->view('admin/index', $data);
-		$this->load->view('admin/footer', $data);
+		redirect('admin/election');
 	}
 	public function updatedatapilketos(){
 		$tapel	= $this->input->post("tapel");
@@ -218,7 +234,7 @@ Class Admin extends CI_Controller {
 	}
 	public function hapuskelas($kd_kelas) {
 		$hapus = $this->Admin_Model->hapuskelas($kd_kelas);
-		if($hapus = true) {
+		if($hapus) {
 			$this->session->set_flashdata('info', 'Berhasil Menghapus Data');
 			redirect('admin/datakelas');
 		}
@@ -260,8 +276,13 @@ Class Admin extends CI_Controller {
 		$this->load->view('admin/footer', $data);
 	}
 	public function hapuscalon($nisn) {
-		$hapus = $this->Admin_Model->hapuscalon($nisn);
-		if($hapus = true) {
+		if ($this->_candidate_updates_locked()) {
+			$this->session->set_flashdata('failed', 'Kandidat tidak dapat diubah setelah suara tercatat.');
+			redirect('admin/datacalon');
+		}
+		$this->load->model('Election_Model');
+		$hapus = $this->Election_Model->delete_candidate($nisn);
+		if($hapus) {
 			$this->session->set_flashdata('info', 'Berhasil Menghapus Data');
 			redirect('admin/datacalon/');
 		}
@@ -423,9 +444,21 @@ Class Admin extends CI_Controller {
 		$this->load->view('admin/footer', $data);
 	}
 	public function simpancalon() {
+		if ($this->_candidate_updates_locked()) {
+			$this->session->set_flashdata('failed', 'Kandidat tidak dapat diubah setelah suara tercatat.');
+			redirect('admin/tambahcalon');
+		}
 		$nisn		= $this->input->post('nisn');
 		$no			= $this->input->post('no');
 		$nama		= $this->input->post('nama');
+		$this->load->model('Election_Model');
+		if (!$nisn || strlen($nisn) > 32 || !preg_match('/^[A-Za-z0-9._-]+$/', $nisn)
+			|| !$nama || strlen($nama) > 32 || !ctype_digit((string) $no)
+			|| (int) $no < 1 || (int) $no > 99
+			|| $this->Election_Model->candidate_number_exists((int) $no)) {
+			$this->session->set_flashdata('failed', 'Data kandidat tidak valid atau nomor urut telah digunakan.');
+			redirect('admin/tambahcalon');
+		}
 		$config['upload_path']	= "./asset/img/";
 		$config['allowed_types']= "gif|jpg|jpeg|png";
 		$config['max_size']		= 1024;
@@ -433,12 +466,23 @@ Class Admin extends CI_Controller {
 		$this->load->library('upload', $config);
 		if($this->upload->do_upload('photo'))
 		{
-			$this->session->set_flashdata('info', 'Berhasil Menambahkan Data');
 			$data['upload_data']= $this->upload->data();
-			$img 				= $_FILES['photo']['name'];
-			$img_ext			= pathinfo($img, PATHINFO_EXTENSION);
-			$photo				= $config['file_name'].".".$img_ext;
-			$this->Admin_Model->tambahcalon($nisn, $no ,$nama, $photo);
+			$photo				= $data['upload_data']['file_name'];
+			$saved = $this->Election_Model->add_candidate(array(
+				'nisn' => $nisn,
+				'no' => (int) $no,
+				'nama' => $nama,
+				'photo' => $photo
+			));
+			if (!$saved) {
+				$uploaded_path = $data['upload_data']['full_path'];
+				if (is_file($uploaded_path)) {
+					unlink($uploaded_path);
+				}
+				$this->session->set_flashdata('failed', 'Gagal menambahkan kandidat.');
+				redirect('admin/tambahcalon');
+			}
+			$this->session->set_flashdata('info', 'Berhasil Menambahkan Data');
 			redirect('admin/tambahcalon');
 		}
 		else 
@@ -448,11 +492,19 @@ Class Admin extends CI_Controller {
 		}
 	}
 	public function updatecalon() {
+		if ($this->_candidate_updates_locked()) {
+			$this->session->set_flashdata('failed', 'Kandidat tidak dapat diubah setelah suara tercatat.');
+			redirect('admin/datacalon');
+		}
 		$nisn		= $this->input->post('nisn');
 		$no			= $this->input->post('no');
 		$nama		= $this->input->post('nama');
-		$upade		= $this->Admin_Model->updatecalon($nisn, $no ,$nama);
-		if($update = true) {
+		$this->load->model('Election_Model');
+		$update = ctype_digit((string) $no) && (int) $no > 0 && (int) $no <= 99
+			&& $nama && strlen((string) $nama) <= 32
+			&& !$this->Election_Model->candidate_number_exists((int) $no, $nisn)
+			&& $this->Election_Model->update_candidate($nisn, array('no' => (int) $no, 'nama' => $nama));
+		if($update) {
 			$this->session->set_flashdata('info', 'Berhasil MemperbaruiData');
 			redirect('admin/editcalon/'.$nisn);
 		}
@@ -662,5 +714,220 @@ Class Admin extends CI_Controller {
 		$pdf->Output();
 		ob_end_flush(); 
 	}
-} 
+
+	public function election()
+	{
+		$this->load->model('Election_Model');
+		$data = array(
+			'election' => $this->Election_Model->election(),
+			'school' => $this->Election_Model->school(),
+			'candidates' => $this->Election_Model->candidates(),
+			'results' => $this->Election_Model->results(),
+			'votes' => $this->Election_Model->vote_count(),
+			'voters' => $this->Election_Model->voter_count()
+		);
+		$this->load->view('admin/election', $data);
+	}
+
+	public function save_election()
+	{
+		$this->load->model('Election_Model');
+		$status = $this->input->post('status', TRUE);
+		$start_input = trim((string) $this->input->post('mulai', TRUE));
+		$end_input = trim((string) $this->input->post('selesai', TRUE));
+		$start = $this->_parse_datetime($start_input);
+		$end = $this->_parse_datetime($end_input);
+		if (!in_array($status, array('draft', 'open', 'closed'), TRUE)
+			|| ($start_input !== '' && $start === FALSE)
+			|| ($end_input !== '' && $end === FALSE)
+			|| ($start && $end && strtotime($start) >= strtotime($end))) {
+			$this->session->set_flashdata('error', 'Status atau rentang waktu pemilihan tidak valid.');
+			redirect('admin/election');
+		}
+		$election_date = trim((string) $this->input->post('tgl', TRUE));
+		$season = trim((string) $this->input->post('tapel', TRUE));
+		$description = trim((string) $this->input->post('deskripsi', TRUE));
+		if (($election_date !== '' && !$this->_valid_date($election_date))
+			|| strlen($season) > 10 || strlen($description) > 5000) {
+			$this->session->set_flashdata('error', 'Tanggal, tahun pelajaran, atau informasi pemilihan tidak valid.');
+			redirect('admin/election');
+		}
+		$this->load->model('Election_Model');
+		if ($status === 'open' && (count($this->Election_Model->candidates()) < 2
+			|| $this->Election_Model->voter_count() < 1)) {
+			$this->session->set_flashdata('error', 'Tambahkan minimal dua kandidat dan satu pemilih sebelum membuka pemungutan suara.');
+			redirect('admin/election');
+		}
+
+		$school_name = $this->input->post('nm_sekolah', TRUE);
+		if (!$school_name || strlen($school_name) > 32) {
+			$this->session->set_flashdata('error', 'Nama sekolah wajib diisi (maksimal 32 karakter).');
+			redirect('admin/election');
+		}
+		$school_limits = array('jln' => 32, 'desa' => 32, 'kec' => 32, 'kab' => 32, 'kpl_sekolah' => 32, 'nip' => 16);
+		foreach ($school_limits as $field => $limit) {
+			if (strlen((string) $this->input->post($field, TRUE)) > $limit) {
+				$this->session->set_flashdata('error', 'Data identitas sekolah melebihi batas panjang yang diizinkan.');
+				redirect('admin/election');
+			}
+		}
+		$this->db->trans_begin();
+		$school = $this->Election_Model->school();
+		$school_data = array('nm_sekolah' => $school_name);
+		foreach (array('jln', 'desa', 'kec', 'kab', 'kpl_sekolah', 'nip') as $field) {
+			$school_data[$field] = $this->input->post($field, TRUE);
+		}
+		if ($school) {
+			$this->db->where('npsn', $school['npsn'])->update('tb_identitassekolah', $school_data);
+		}
+		$save_ok = $this->Election_Model->save_election(array(
+			'tapel' => $season,
+			'tgl' => $election_date ?: '2000-01-01',
+			'deskripsi' => $description,
+			'status' => $status,
+			'mulai' => $start,
+			'selesai' => $end,
+			'hasil_ditampilkan' => $this->input->post('hasil_ditampilkan') ? 1 : 0
+		));
+		if ($save_ok && $this->db->trans_status() !== FALSE) {
+			$this->db->trans_commit();
+			$this->session->set_flashdata('success', 'Informasi pemilihan berhasil disimpan.');
+		} else {
+			$this->db->trans_rollback();
+			$this->session->set_flashdata('error', 'Data tidak tersimpan. Periksa kembali konfigurasi database.');
+		}
+		redirect('admin/election');
+	}
+
+	public function save_candidate()
+	{
+		$this->load->model('Election_Model');
+		$nisn = trim((string) $this->input->post('nisn', TRUE));
+		$name = trim((string) $this->input->post('nama', TRUE));
+		$number = trim((string) $this->input->post('no', TRUE));
+		$editing = $this->input->post('editing') === '1';
+		$existing = $editing ? $this->Election_Model->candidate($nisn) : NULL;
+		if (!$nisn || strlen($nisn) > 32 || !preg_match('/^[A-Za-z0-9._-]+$/', $nisn)
+			|| !$name || strlen($name) > 32 || !ctype_digit($number)
+			|| (int) $number < 1 || (int) $number > 99
+			|| strlen((string) $this->input->post('visi', TRUE)) > 5000
+			|| strlen((string) $this->input->post('misi', TRUE)) > 5000
+			|| ($editing && !$existing)) {
+			$this->session->set_flashdata('error', 'Data kandidat tidak valid. Periksa NISN, nama, dan nomor urut.');
+			redirect('admin/election');
+		}
+		if ($this->Election_Model->vote_count() > 0) {
+			$this->session->set_flashdata('error', 'Data kandidat dikunci setelah suara pertama tercatat.');
+			redirect('admin/election');
+		}
+
+		$data = array(
+			'nisn' => $nisn,
+			'no' => (int) $number,
+			'nama' => $name,
+			'visi' => trim((string) $this->input->post('visi', TRUE)),
+			'misi' => trim((string) $this->input->post('misi', TRUE))
+		);
+		$photo = $existing ? $existing['photo'] : '';
+		$uploaded_photo = NULL;
+		if (isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+			$this->load->library('upload');
+			$config = array(
+				'upload_path' => FCPATH.'uploads/candidates/',
+				'allowed_types' => 'jpg|jpeg|png',
+				'max_size' => 2048,
+				'encrypt_name' => TRUE,
+				'detect_mime' => TRUE,
+				'remove_spaces' => TRUE
+			);
+			$this->upload->initialize($config);
+			if (!$this->upload->do_upload('photo')) {
+				$this->session->set_flashdata('error', strip_tags($this->upload->display_errors('', '')));
+				redirect('admin/election');
+			}
+			$upload = $this->upload->data();
+			$photo = 'uploads/candidates/'.$upload['file_name'];
+			$uploaded_photo = FCPATH.$photo;
+		}
+		if (!$photo) {
+			$this->session->set_flashdata('error', 'Foto kandidat wajib diunggah.');
+			redirect('admin/election');
+		}
+		$data['photo'] = $photo;
+		$saved = $editing
+			? $this->Election_Model->update_candidate($nisn, $data)
+			: $this->Election_Model->add_candidate($data);
+		if (!$saved && $uploaded_photo && is_file($uploaded_photo)) {
+			unlink($uploaded_photo);
+		}
+		$this->session->set_flashdata(
+			$saved ? 'success' : 'error',
+			$saved ? 'Data kandidat berhasil disimpan.' : 'Kandidat gagal disimpan. Pastikan NISN belum digunakan.'
+		);
+		redirect('admin/election');
+	}
+
+	public function delete_candidate()
+	{
+		$this->load->model('Election_Model');
+		$nisn = trim((string) $this->input->post('nisn', TRUE));
+		$deleted = $this->Election_Model->vote_count() === 0
+			&& $this->Election_Model->delete_candidate($nisn);
+		$this->session->set_flashdata(
+			$deleted ? 'success' : 'error',
+			$deleted ? 'Kandidat berhasil dihapus.' : 'Kandidat tidak dapat dihapus setelah suara tercatat.'
+		);
+		redirect('admin/election');
+	}
+
+	public function create_admin($username = '')
+	{
+		if (!$this->input->is_cli_request()) {
+			show_error('This command can only be run from the command line.', 403);
+		}
+		$username = trim($username);
+		if (!preg_match('/^[A-Za-z0-9._-]{3,32}$/', $username)) {
+			echo "Usage: php index.php admin create_admin <username>\n";
+			exit(1);
+		}
+		if ($this->Admin_Model->admin_count() > 0) {
+			echo "An administrator already exists. Use the admin password-change page.\n";
+			exit(1);
+		}
+		$password = bin2hex(random_bytes(16));
+		if (!$this->Admin_Model->create_initial_admin($username, password_hash($password, PASSWORD_DEFAULT))) {
+			echo "Administrator creation failed or another administrator was created concurrently.\n";
+			exit(1);
+		}
+		echo "Administrator created. Save this one-time password securely:\n".$password."\n";
+	}
+
+	private function _parse_datetime($value)
+	{
+		if ($value === '') {
+			return NULL;
+		}
+		$date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
+		$errors = DateTime::getLastErrors();
+		if (!$date || ($errors && ($errors['warning_count'] || $errors['error_count']))
+			|| $date->format('Y-m-d\TH:i') !== $value) {
+			return FALSE;
+		}
+		return $date->format('Y-m-d H:i:s');
+	}
+
+	private function _valid_date($value)
+	{
+		$date = DateTime::createFromFormat('Y-m-d', $value);
+		$errors = DateTime::getLastErrors();
+		return $date && (!$errors || (!$errors['warning_count'] && !$errors['error_count']))
+			&& $date->format('Y-m-d') === $value;
+	}
+
+	private function _candidate_updates_locked()
+	{
+		$this->load->model('Election_Model');
+		return $this->Election_Model->vote_count() > 0;
+	}
+}
  ?> 

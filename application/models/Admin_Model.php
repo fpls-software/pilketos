@@ -1,6 +1,70 @@
 <?php 
 Class Admin_Model extends CI_Model {
+	public function authenticate($username, $password) {
+		if ($password === '') {
+			return FALSE;
+		}
+		$admin = $this->db->get_where('tb_admin', array('username' => $username))->row_array();
+		if (!$admin) {
+			return FALSE;
+		}
+
+		$stored = (string) $admin['password'];
+		$verified = password_verify($password, $stored)
+			|| (strlen($stored) === 32 && hash_equals($stored, md5($password)));
+		if (!$verified) {
+			return FALSE;
+		}
+
+		if (strlen($stored) === 32 || password_needs_rehash($stored, PASSWORD_DEFAULT)) {
+			$this->db->where('username', $username)->update('tb_admin', array(
+				'password' => password_hash($password, PASSWORD_DEFAULT)
+			));
+		}
+		return TRUE;
+	}
+
+	public function admin_count() {
+		return $this->db->count_all('tb_admin');
+	}
+
+	public function must_change_admin_password($username) {
+		$admin = $this->db->select('wajib_ganti_password')
+			->get_where('tb_admin', array('username' => $username))
+			->row_array();
+		return $admin && (int) $admin['wajib_ganti_password'] === 1;
+	}
+
+	public function change_admin_password($username, $password_hash) {
+		return $this->db->where('username', $username)->update('tb_admin', array(
+			'password' => $password_hash,
+			'wajib_ganti_password' => 0
+		));
+	}
+
+	public function create_initial_admin($username, $password_hash) {
+		$lock = $this->db->query(
+			'SELECT GET_LOCK(?, 10) AS acquired',
+			array('pilketos_initial_admin')
+		)->row_array();
+		if (!$lock || (int) $lock['acquired'] !== 1) {
+			return FALSE;
+		}
+
+		$created = FALSE;
+		if ($this->admin_count() === 0) {
+			$created = $this->db->insert('tb_admin', array(
+				'username' => $username,
+				'password' => $password_hash,
+				'wajib_ganti_password' => 0
+			));
+		}
+		$this->db->query('SELECT RELEASE_LOCK(?)', array('pilketos_initial_admin'));
+		return $created;
+	}
+
 	public function login($username, $password_hash) {
+		return $this->authenticate($username, $password_hash);
 		$condition	= "username="."'".$username."'". " AND "."password="."'".$password_hash."'";
 		$select		= array('username', 'password');
 		$this->db->select($select);
@@ -130,7 +194,8 @@ Class Admin_Model extends CI_Model {
 	public function simpandpt($username, $password, $nm_siswa, $jk,$kd_kelas) {
 		$data 			= array(
 			'username'	=> $username,
-			'password'	=> $password,
+			'password'	=> password_hash($password, PASSWORD_DEFAULT),
+			'wajib_ganti_password' => 1,
 			'nm_siswa'	=> $nm_siswa,
 			'jk'		=> $jk,
 			'kd_kelas'	=> $kd_kelas
@@ -140,7 +205,8 @@ Class Admin_Model extends CI_Model {
 	public function simpanmassaldpt($nisn, $nama, $jk, $kelas) {
 		$data			= array(
 			'username'	=> $nisn,
-			'password'	=> $nisn,
+			'password'	=> password_hash($nisn, PASSWORD_DEFAULT),
+			'wajib_ganti_password' => 1,
 			'nm_siswa'	=> $nama,
 			'jk'		=> $jk,
 			'kd_kelas'	=> $kelas

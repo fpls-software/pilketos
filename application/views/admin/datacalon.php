@@ -56,10 +56,9 @@
 								<i class="glyphicon glyphicon-edit icon-white"></i>
 								Edit
 							</a>
-							<a class="btn btn-danger" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?');" href="<?php echo base_url(); ?>index.php/admin/hapuscalon/<?php echo $loaddata['nisn']; ?>">
-								<i class="glyphicon glyphicon-trash icon-white"></i>
-								Hapus
-							</a>
+							<?php echo form_open('admin/hapuscalon/'.$loaddata['nisn'], array('onsubmit' => "return confirm('Apakah anda yakin ingin menghapus data ini?');")); ?>
+								<button type="submit" class="btn btn-danger"><i class="glyphicon glyphicon-trash icon-white"></i> Hapus</button>
+							<?php echo form_close(); ?>
 						</td>
 					</tr>
 				<?php 

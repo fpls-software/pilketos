@@ -28,16 +28,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `tb_admin` (
   `username` varchar(32) NOT NULL,
-  `password` varchar(32) NOT NULL
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data untuk tabel `tb_admin`
---
-
-INSERT INTO `tb_admin` (`username`, `password`) VALUES
-('admin', '21232f297a57a5a743894a0e4a801fc3');
-
 -- --------------------------------------------------------
 
 --

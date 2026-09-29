@@ -70,7 +70,9 @@
 					<h2 class="card-title">Data Kelas</h2>
 				</div>
 				<div class="col-md-6 text-right">
-					<a href="<?php echo base_url(); ?>index.php/admin/hapussemuakelas" onclick="return confirm('Apakah anda yakin ingin menghapus semua data kelas?');"> <button type="button" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> Hapus Semua Data</button> </a>
+					<?php echo form_open('admin/hapussemuakelas', array('onsubmit' => "return confirm('Apakah anda yakin ingin menghapus semua data kelas?');")); ?>
+						<button type="submit" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove"></span> Hapus Semua Data</button>
+					<?php echo form_close(); ?>
 				</div>
 			</div>
 			
@@ -92,7 +94,7 @@
 							<td><?php echo $no++; ?></td>
 							<td><?php echo $load['kd_kelas']; ?></td>
 							<td><?php echo $load['nm_kelas']; ?></td>
-							<td width="100"><a href="<?php echo base_url('index.php/admin/hapuskelas'); ?>/<?php echo $load['kd_kelas']; ?>"  onClick="return confirm('Apakah anda yakin ingin menghapus data ini?');"><button type="button" class="btn btn-warning"><span class="glyphicon glyphicon-remove"></span> Hapus</button></a></td>
+							<td width="100"><?php echo form_open('admin/hapuskelas/'.$load['kd_kelas'], array('onsubmit' => "return confirm('Apakah anda yakin ingin menghapus data ini?');")); ?><button type="submit" class="btn btn-warning"><span class="glyphicon glyphicon-remove"></span> Hapus</button><?php echo form_close(); ?></td>
 						</tr>
 					<?php
 						}
