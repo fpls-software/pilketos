@@ -46,14 +46,14 @@
                 );
                 echo form_open('admin/updatepassword', $form_attribute)
             ?>
-                <label class="label-control">Username</label>
+                <label class="label-control">Password Saat Ini</label>
                 <?php
                     $form_attribute = array(
-                        'type'      => 'text',
-                        'name'      => 'username',
+                        'type'      => 'password',
+                        'name'      => 'current_password',
                         'class'     => 'form-control',
-                        'value'     => $data['username'],
-                        'readonly'  => ''
+                        'required'  => 'required',
+                        'autocomplete' => 'current-password'
                     );
                     echo form_input($form_attribute);
                 ?>
@@ -63,6 +63,9 @@
                         'type'      => 'password',
                         'name'      => 'password',
                         'class'     => 'form-control',
+                        'required'  => 'required',
+                        'minlength' => '12',
+                        'autocomplete' => 'new-password'
                     );
                     echo form_input($form_attribute);
                 ?><br/>

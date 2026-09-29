@@ -1,49 +1,73 @@
 <?php
-Class User_Model extends CI_Model {
-	public function login($username, $password) {
-		$condition	= "username="."'".$username."'". " AND "."password="."'".$password."'";
-		$select		= array('username', 'password');
-		$this->db->select($select);
-		$this->db->from('tb_siswa');
-		$this->db->where($condition);
-		$login 		= $this->db->get();
-		
-		if($login->num_rows() > 0) {
-			return true;
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class User_Model extends CI_Model
+{
+	public function login($username, $password)
+	{
+		$user = $this->db->get_where('tb_siswa', array('username' => $username))->row_array();
+		if (!$user) {
+			return FALSE;
 		}
-		else {
-			return false;
+
+		$stored = (string) $user['password'];
+		$verified = password_verify($password, $stored)
+			|| hash_equals($stored, $password)
+			|| (strlen($stored) === 32 && hash_equals($stored, md5($password)));
+
+		if (!$verified) {
+			return FALSE;
 		}
-	}
-	public function valid($username) {
-		$condition	= "username="."'".$username."'";
-		$select		= array('username');
-		$this->db->select($select);
-		$this->db->from('view_vote');
-		$this->db->where($condition);
-		$login 		= $this->db->get();
-		
-		if($login->num_rows() > 0) {
-			return true;
+
+		if (password_needs_rehash($stored, PASSWORD_DEFAULT)
+			|| hash_equals($stored, $password)
+			|| strlen($stored) === 32) {
+			$this->db->where('username', $username)->update('tb_siswa', array(
+				'password' => password_hash($password, PASSWORD_DEFAULT)
+			));
 		}
-		else {
-			return false;
+
+		return TRUE;
+	}
+
+	public function candidates()
+	{
+		return $this->db->order_by('no', 'ASC')->get('tb_pilihan')->result_array();
+	}
+
+	public function election()
+	{
+		return $this->db->get_where('tb_datapilketos', array('id' => 1))->row_array();
+	}
+
+	public function has_voted($username)
+	{
+		return $this->db->where('username', $username)->count_all_results('tb_pilih') > 0;
+	}
+
+	public function must_change_password($username)
+	{
+		$user = $this->db->select('wajib_ganti_password')
+			->get_where('tb_siswa', array('username' => $username))
+			->row_array();
+		return $user && (int) $user['wajib_ganti_password'] === 1;
+	}
+
+	public function change_password($username, $current, $new_password)
+	{
+		if (!$this->login($username, $current) || strlen($new_password) < 12
+			|| hash_equals($current, $new_password)) {
+			return FALSE;
 		}
+		return $this->db->where('username', $username)->update('tb_siswa', array(
+			'password' => password_hash($new_password, PASSWORD_DEFAULT),
+			'wajib_ganti_password' => 0
+		));
 	}
-	public function datamodel() {
-		$load	= $this->db->query("SELECT * FROM tb_pilihan ORDER BY no ASC");
-		return $load->result_Array();
-	}
-	public function vote($nisn, $username) {
-		$data			= array(
-			'nisn'		=> $nisn,
-			'username'	=> $username
-		);
-		$this->db->insert('tb_pilih', $data);
-	}
-	public function hadir($username) {
-		$update = $this->db->query("UPDATE tb_siswa SET hadir='Hadir' WHERE username='$username'");
-		return $update;
+
+	public function vote($nisn, $username)
+	{
+		$this->load->model('Election_Model');
+		return $this->Election_Model->cast_vote($nisn, $username);
 	}
 }
-?>

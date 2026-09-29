@@ -1,0 +1,12 @@
+Options -Indexes -ExecCGI
+<IfModule mod_authz_core.c>
+	<FilesMatch "(?i)\.(php[0-9]?|phtml|phar|cgi|pl|asp|aspx|jsp)$">
+		Require all denied
+	</FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+	<FilesMatch "(?i)\.(php[0-9]?|phtml|phar|cgi|pl|asp|aspx|jsp)$">
+		Order allow,deny
+		Deny from all
+	</FilesMatch>
+</IfModule>

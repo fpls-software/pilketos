@@ -152,7 +152,7 @@
 								<p>Apakah anda yakin ingin Me-Reset semua data? </p>
 							</div>
 							<div class="modal-footer">
-								<a href="<?php echo base_url('index.php/admin/resetdata'); ?>"><button type="button" class="btn btn-success">Ya</button></a>
+								<?php echo form_open('admin/resetdata', array('style' => 'display:inline')); ?><button type="submit" class="btn btn-success">Ya</button><?php echo form_close(); ?>
 								<button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
 							</div>
 						</div>
